@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ポモドーロタイマー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .timer-circle {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        #timer-display {
+            font-size: 3em;
+            color: white;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        #start-button {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+
+        #start-button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        #reset-button {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        #reset-button:hover {
+            background: #f7f7f7;
+            transform: translateY(-2px);
+        }
+
+        .progress-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .progress-title {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍅 ポモドーロタイマー</h1>
+        
+        <div class="timer-circle">
+            <div id="timer-display">25:00</div>
+        </div>
+        
+        <div class="controls">
+            <button id="start-button">開始</button>
+            <button id="reset-button">リセット</button>
+        </div>
+        
+        <div class="progress-section">
+            <div class="progress-title">今日の進捗</div>
+            <div class="progress-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="completed-count">0</span>
+                    <span class="stat-label">完了</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="focus-time">0分</span>
+                    <span class="stat-label">集中時間</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load API communication module first -->
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <!-- Load timer module which depends on API -->
+    <script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+</body>
+</html>
