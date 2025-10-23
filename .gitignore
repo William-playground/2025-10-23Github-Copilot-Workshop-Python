@@ -25,10 +25,14 @@ data/
 game_data/
 persistent_data/
 test_data/
+env_test_data/
 
 # Config files (optional - uncomment if you want to keep config in repo)
 # app_config.json
 # config.json
+
+# Backup files
+*.backup
 
 # IDE
 .vscode/
