@@ -56,8 +56,8 @@ def calculate_distance():
             "point1": {"x": p1.x, "y": p1.y},
             "point2": {"x": p2.x, "y": p2.y}
         }), 200
-    except (KeyError, TypeError, ValueError) as e:
-        return jsonify({"error": f"Invalid point data: {str(e)}"}), 400
+    except (KeyError, TypeError, ValueError):
+        return jsonify({"error": "Invalid point data"}), 400
 
 
 @app.route('/api/game/start', methods=['POST'])
@@ -84,4 +84,4 @@ def game_status():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000)
