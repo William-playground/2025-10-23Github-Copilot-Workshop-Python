@@ -4,6 +4,13 @@ from typing import List, Callable, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 
+# 進捗マネージャーのインポート（循環インポート回避のため遅延インポート可能）
+try:
+    from progress_manager import ProgressManager
+    PROGRESS_MANAGER_AVAILABLE = True
+except ImportError:
+    PROGRESS_MANAGER_AVAILABLE = False
+
 
 class EventArgs:
     """イベント引数の基底クラス"""
@@ -119,7 +126,14 @@ class DeliveryManager:
         self._spawn_recipe_timer_max = 4.0
         self._waiting_recipes_max = 4
         self._successful_recipes_amount = 0
+        self._failed_deliveries_amount = 0
         self._last_update_time = time.time()
+        
+        # 進捗マネージャーの取得
+        if PROGRESS_MANAGER_AVAILABLE:
+            self._progress_manager = ProgressManager.get_instance()
+        else:
+            self._progress_manager = None
     
     @classmethod
     def get_instance(cls, recipe_list_so: RecipeListSO = None) -> 'DeliveryManager':
@@ -181,12 +195,22 @@ class DeliveryManager:
                     self._successful_recipes_amount += 1
                     self._waiting_recipe_so_list.pop(i)
                     
+                    # 進捗マネージャーに成功を記録
+                    if self._progress_manager:
+                        self._progress_manager.update_successful_recipes()
+                    
                     # 成功イベント発火
                     self.on_recipe_completed.invoke(self)
                     self.on_recipe_success.invoke(self)
                     return
         
         # 一致するレシピが見つからなかった場合
+        self._failed_deliveries_amount += 1
+        
+        # 進捗マネージャーに失敗を記録
+        if self._progress_manager:
+            self._progress_manager.update_failed_deliveries()
+        
         self.on_recipe_failed.invoke(self)
     
     def get_waiting_recipe_so_list(self) -> List[RecipeSO]:
@@ -196,6 +220,10 @@ class DeliveryManager:
     def get_successful_recipes_amount(self) -> int:
         """成功したレシピ数を取得"""
         return self._successful_recipes_amount
+    
+    def get_failed_deliveries_amount(self) -> int:
+        """失敗した配達数を取得"""
+        return self._failed_deliveries_amount
 
 
 # 使用例
