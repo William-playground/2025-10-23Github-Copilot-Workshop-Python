@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Pomodoro Timer</h1>
+        
+        <div class="timer-container">
+            <!-- SVG円グラフ -->
+            <svg class="timer-circle" viewBox="0 0 200 200">
+                <!-- 背景の円 -->
+                <circle cx="100" cy="100" r="90" class="timer-bg"></circle>
+                <!-- 進捗を示す円 -->
+                <circle cx="100" cy="100" r="90" class="timer-progress" id="timerProgress"></circle>
+            </svg>
+            
+            <!-- タイマー表示 -->
+            <div class="timer-display">
+                <span id="timerDisplay">25:00</span>
+            </div>
+        </div>
+        
+        <!-- コントロールボタン -->
+        <div class="controls">
+            <button id="startBtn" class="btn btn-start">開始</button>
+            <button id="resetBtn" class="btn btn-reset">リセット</button>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+</body>
+</html>
