@@ -13,10 +13,10 @@ def get_progress():
     try:
         result = progress_manager.get_progress()
         return jsonify(result), 200
-    except Exception as e:
+    except Exception:
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": "進捗データの取得中にエラーが発生しました"
         }), 500
 
 
@@ -44,10 +44,10 @@ def save_progress():
         )
         
         return jsonify(result), 200
-    except Exception as e:
+    except Exception:
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": "進捗データの保存中にエラーが発生しました"
         }), 500
 
 
@@ -57,10 +57,10 @@ def reset_progress():
     try:
         result = progress_manager.reset_progress()
         return jsonify(result), 200
-    except Exception as e:
+    except Exception:
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": "進捗データのリセット中にエラーが発生しました"
         }), 500
 
 
@@ -78,4 +78,7 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    import os
+    # 開発環境でのみデバッグモードを有効化
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)
