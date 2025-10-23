@@ -1,8 +1,10 @@
 import time
 import random
 from typing import List, Callable, Optional
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from enum import Enum
+from data_repository import IDataRepository, DataRepositoryFactory
+from config import get_config
 
 
 class EventArgs:
@@ -105,12 +107,23 @@ class DeliveryManager:
     
     _instance: Optional['DeliveryManager'] = None
     
-    def __init__(self, recipe_list_so: RecipeListSO):
+    def __init__(self, recipe_list_so: RecipeListSO, data_repository: Optional[IDataRepository] = None):
         # イベント定義
         self.on_recipe_spawned = Event()
         self.on_recipe_completed = Event()
         self.on_recipe_success = Event()
         self.on_recipe_failed = Event()
+        
+        # データリポジトリ
+        if data_repository is None:
+            # 設定からデータリポジトリを作成
+            config = get_config()
+            self._data_repository = DataRepositoryFactory.create(
+                config.storage_type,
+                base_dir=config.data_dir
+            )
+        else:
+            self._data_repository = data_repository
         
         # プライベート変数
         self._recipe_list_so = recipe_list_so
@@ -120,14 +133,17 @@ class DeliveryManager:
         self._waiting_recipes_max = 4
         self._successful_recipes_amount = 0
         self._last_update_time = time.time()
+        
+        # データリポジトリから状態を読み込む
+        self._load_state()
     
     @classmethod
-    def get_instance(cls, recipe_list_so: RecipeListSO = None) -> 'DeliveryManager':
+    def get_instance(cls, recipe_list_so: RecipeListSO = None, data_repository: Optional[IDataRepository] = None) -> 'DeliveryManager':
         """Singletonインスタンスを取得"""
         if cls._instance is None:
             if recipe_list_so is None:
                 raise ValueError("初回作成時にはrecipe_list_soが必要です")
-            cls._instance = cls(recipe_list_so)
+            cls._instance = cls(recipe_list_so, data_repository)
         return cls._instance
     
     def update(self):
@@ -181,6 +197,9 @@ class DeliveryManager:
                     self._successful_recipes_amount += 1
                     self._waiting_recipe_so_list.pop(i)
                     
+                    # 状態を保存
+                    self._save_state()
+                    
                     # 成功イベント発火
                     self.on_recipe_completed.invoke(self)
                     self.on_recipe_success.invoke(self)
@@ -196,6 +215,40 @@ class DeliveryManager:
     def get_successful_recipes_amount(self) -> int:
         """成功したレシピ数を取得"""
         return self._successful_recipes_amount
+    
+    def _save_state(self):
+        """現在の状態をデータリポジトリに保存"""
+        try:
+            state = {
+                "successful_recipes_amount": self._successful_recipes_amount,
+                "waiting_recipes": [
+                    {
+                        "name": recipe.name,
+                        "ingredients": [
+                            {"name": obj.name, "id": obj.object_id}
+                            for obj in recipe.kitchen_object_so_list
+                        ]
+                    }
+                    for recipe in self._waiting_recipe_so_list
+                ]
+            }
+            self._data_repository.save("delivery_manager_state", state)
+        except Exception as e:
+            print(f"状態保存エラー: {e}")
+    
+    def _load_state(self):
+        """データリポジトリから状態を読み込む"""
+        try:
+            state = self._data_repository.load("delivery_manager_state")
+            if state:
+                self._successful_recipes_amount = state.get("successful_recipes_amount", 0)
+                # waiting_recipesの復元は省略（レシピリストとの整合性確保が必要なため）
+        except Exception as e:
+            print(f"状態読み込みエラー: {e}")
+    
+    def save_game_state(self):
+        """ゲーム状態を明示的に保存（外部から呼び出し可能）"""
+        self._save_state()
 
 
 # 使用例
