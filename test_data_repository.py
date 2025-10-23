@@ -128,10 +128,21 @@ def test_path_traversal_protection():
         repo.save("../../../etc/passwd", "malicious")
         
         # パストラバーサルが防がれていることを確認
-        # ファイルは test_dir 内に作成されるべき
-        expected_file = os.path.join(test_dir, ".._.._.._etc_passwd.json")
+        # basename が使用されるので "passwd.json" が test_dir 内に作成される
+        expected_file = os.path.join(test_dir, "passwd.json")
         assert os.path.exists(expected_file), "セーフティ機構が動作していない"
+        
+        # システムファイルが上書きされていないことを確認
         assert not os.path.exists("/etc/passwd.json"), "パストラバーサルが成功してしまった"
+        if os.path.exists("/etc/passwd"):
+            # /etc/passwd が存在する場合（Linuxシステム）、それが変更されていないことを確認
+            # 読み取り可能な場合のみチェック
+            try:
+                with open("/etc/passwd", "r") as f:
+                    content = f.read()
+                    assert "malicious" not in content, "システムファイルが改ざんされた"
+            except PermissionError:
+                pass  # 読み取り権限がない場合はスキップ
         
         print("  ✓ すべてのテストが成功")
         

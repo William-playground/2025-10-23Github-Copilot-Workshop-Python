@@ -133,8 +133,12 @@ class FileDataRepository(IDataRepository):
     
     def _get_file_path(self, key: str) -> Path:
         """キーからファイルパスを生成"""
-        # セキュリティ: パストラバーサルを防ぐ
-        safe_key = key.replace("/", "_").replace("\\", "_")
+        # セキュリティ: パストラバーサルを防ぐため、basename のみを使用
+        # これにより、ディレクトリセパレータや .. が除去される
+        safe_key = os.path.basename(key)
+        if not safe_key or safe_key in ('.', '..'):
+            # 空、"."、".." の場合は安全なデフォルト名を使用
+            safe_key = "default"
         return self._base_dir / f"{safe_key}.json"
     
     def save(self, key: str, data: Any) -> bool:
