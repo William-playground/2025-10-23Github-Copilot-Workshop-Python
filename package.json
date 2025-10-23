@@ -1,0 +1,17 @@
+{
+  "name": "pomodoro-timer-tests",
+  "version": "1.0.0",
+  "description": "Unit tests for Pomodoro Timer",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.js"
+    ]
+  }
+}
