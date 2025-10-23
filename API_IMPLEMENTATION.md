@@ -1,6 +1,6 @@
 # API Communication Implementation
 
-This document describes the implementation of API communication layer for the Pomodoro Timer application (Stage 4: API連携・データ永続化).
+This document describes the implementation of the API communication layer for the Pomodoro Timer application (Stage 4: API連携・データ永続化).
 
 ## Overview
 
