@@ -44,9 +44,11 @@ def save_progress():
         }), 200
     
     except Exception as e:
+        # Log error for debugging but don't expose details to client
+        app.logger.error(f'Error saving progress: {str(e)}')
         return jsonify({
             'success': False,
-            'message': f'Error saving progress: {str(e)}'
+            'message': 'Error saving progress. Please try again.'
         }), 400
 
 @app.route('/api/progress/reset', methods=['POST'])
@@ -63,4 +65,7 @@ def reset_progress():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    import os
+    # Only enable debug mode in development
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)
